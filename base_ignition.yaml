@@ -1,0 +1,26 @@
+---
+variant: fcos
+version: 1.3.0
+passwd:
+  users:
+    - name: localanthony
+      ssh_authorized_keys:
+        - ${localanthony_ssh_key}
+storage:
+  filesystems:
+    - device: /dev/disk/by-label/ROOT
+      format: btrfs
+      path: /home
+      wipe_filesystem: false
+      mount_options:
+        - subvol=/@/home
+  files:
+    - path: /etc/hostname
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: test-${count}
+    - path: /etc/transactional-update.conf
+      mode: 0644
+      contents:
+        inline: REBOOT_METHOD=kured

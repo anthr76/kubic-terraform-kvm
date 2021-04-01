@@ -5,12 +5,18 @@ terraform {
       source  = "dmacvicar/libvirt"
       version = "0.6.3"
     }
+    ct = {
+      source  = "poseidon/ct"
+      version = "0.8.0"
+    }
   }
 }
 
 provider "libvirt" {
   uri = "qemu:///system"
 }
+
+provider "ct" {}
 
 resource "libvirt_volume" "kubic_image" {
   name   = "kubic_image"
@@ -43,20 +49,24 @@ resource "libvirt_network" "kubic_network" {
   addresses = [var.network_cidr]
 }
 
-data "template_file" "ignition_data" {
-  count    = var.count_vms
-  template = file("commoninit.ign")
-
-  vars = {
-    hostname = "kubic-${count.index}"
-  }
+data "ct_config" "base_ignition" {
+  count = var.count_vms
+  content      = templatefile(
+    "base_ignition.yaml",
+    { count = count.index
+      localanthony_ssh_key = var.localanthony_ssh_key
+     }
+  )
+  strict       = true
+  pretty_print = false
 }
 
-resource "libvirt_ignition" "kubic_ignition" {
-  name    = "kubic-ignition-${count.index}"
-  content = element(data.template_file.ignition_data.*.rendered, count.index)
-  count   = var.count_vms
+resource "libvirt_ignition" "ignition" {
+  count = var.count_vms
+  name = "ignition-${count.index}"
+  content = data.ct_config.base_ignition[count.index].rendered
 }
+
 
 resource "libvirt_domain" "kubic_domain" {
   name = "kubic-kubeadm-${count.index}"
@@ -82,7 +92,7 @@ resource "libvirt_domain" "kubic_domain" {
     wait_for_lease = true
   }
 
-  coreos_ignition = element(libvirt_ignition.kubic_ignition.*.id, count.index)
+  coreos_ignition = libvirt_ignition.ignition[count.index].id
   count           = var.count_vms
 }
 
