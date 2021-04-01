@@ -1,6 +1,10 @@
 # terraform-kubic-kvm
 
-The goal is to provide a simple setup of three [Kubic](https://kubic.opensuse.org/) VMs.
+This is an opionated fork of terraform-kubic-kvm. The goal is to provide e2e cluster creation and kubeadm automation strictly from ignition leveraging several terraform providers such as Matchbox, and CT.
+
+This serves as a testing ground before making it over to my infra repo. Your milleage will vary but perhaps tidbits you find in here you will find useful.
+
+`secret.tfvars` holds secret varibles. This would be used in git-crypt on [infra](github.com/anthr76/infra).
 
 # About terraform-libvirt
 
