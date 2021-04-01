@@ -8,3 +8,5 @@ terraform.tfstate.backup
 terraform.tfvars
 ssh_config
 secret.tfvars
+.terraform.lock.hcl
+.terraform.tfstate.lock.info
