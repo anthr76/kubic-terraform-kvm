@@ -6,6 +6,11 @@ This serves as a testing ground before making it over to my infra repo. Your mil
 
 `secret.tfvars` holds secret varibles. This would be used in git-crypt on [infra](github.com/anthr76/infra).
 
+Some gists you might find interesting if you're on a similar path:
+
+* [Kubic/Micro-OS btrfs sub vols](https://gist.github.com/anthr76/739846a7303e1a7e9fd0990c56d139da)
+* [AutoYaST which will eventually consume ignition](https://gist.github.com/anthr76/d06ee9ef7e791563597fba708aefdd48)
+
 # About terraform-libvirt
 
 If you want to dive in the Terraform-libvirt API, you can have a look here:
