@@ -41,7 +41,7 @@ storage:
           gpgkey=https://download.opensuse.org/repositories/home:/anthr76:/kubernetes/openSUSE_Tumbleweed/repodata/repomd.xml.key
 systemd:
   units:
-    - name: packages.service
+    - name: base-packages.service
       enabled: true
       contents: |
         [Unit]
@@ -55,15 +55,3 @@ systemd:
         ExecStartPost=/usr/bin/touch /var/lib/issuegen-base-ignition-pkgs
         [Install]
         WantedBy=multi-user.target
-    - name: first-reboot.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=First Boot Reboot
-        [Service]
-        Type=oneshot
-        ExecStart=rm /etc/systemd/system/firstbootreboot.service
-        ExecStart=rm /etc/systemd/system/default.target.wants/firstbootreboot.service
-        ExecStart=systemctl reboot
-        [Install]
-        WantedBy=default.target
