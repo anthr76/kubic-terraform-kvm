@@ -22,5 +22,48 @@ storage:
         inline: test-${count}
     - path: /etc/transactional-update.conf
       mode: 0644
+      overwrite: true
       contents:
         inline: REBOOT_METHOD=kured
+    - path: /etc/sudoers.d/localanthony
+      contents:
+        inline: "localanthony ALL=(ALL) NOPASSWD: ALL"
+    - path: /etc/zypp/repos.d/home_anthr76_kubernetes.repo
+      mode: 0493
+      contents:
+        inline: |
+          [home_anthr76_kubernetes]
+          name=Developer & System Operations  (openSUSE_Tumbleweed)
+          enabled=1
+          autorefresh=0
+          baseurl=https://download.opensuse.org/repositories/home:/anthr76:/kubernetes/openSUSE_Tumbleweed/
+          gpgcheck=1
+          gpgkey=https://download.opensuse.org/repositories/home:/anthr76:/kubernetes/openSUSE_Tumbleweed/repodata/repomd.xml.key
+systemd:
+  units:
+    - name: packages.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Installed required packages from base ignition.
+        After=network-online.target
+        ConditionPathExists=!/var/lib/issuegen-base-ignition-pkgs
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/sbin/transactional-update -n -c run zypper --non-interactive --gpg-auto-import-keys refresh
+        ExecStart=/usr/sbin/transactional-update -n -c run zypper --non-interactive --gpg-auto-import-keys install python38-rpm open-iscsi python3-openshift inotify-tools terminfo
+        ExecStartPost=/usr/bin/touch /var/lib/issuegen-base-ignition-pkgs
+        [Install]
+        WantedBy=multi-user.target
+    - name: first-reboot.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=First Boot Reboot
+        [Service]
+        Type=oneshot
+        ExecStart=rm /etc/systemd/system/firstbootreboot.service
+        ExecStart=rm /etc/systemd/system/default.target.wants/firstbootreboot.service
+        ExecStart=systemctl reboot
+        [Install]
+        WantedBy=default.target

@@ -85,6 +85,11 @@ resource "libvirt_domain" "kubic_domain" {
   disk {
     volume_id = element(libvirt_volume.data_volume.*.id, count.index)
   }
+  console {
+    type        = "pty"
+    target_port = "0"
+    target_type = "virtio"
+  }
 
   network_interface {
     network_name   = "kubic-network"
