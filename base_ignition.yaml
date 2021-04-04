@@ -50,8 +50,7 @@ systemd:
         ConditionPathExists=!/var/lib/issuegen-base-ignition-pkgs
         [Service]
         Type=oneshot
-        ExecStart=/usr/sbin/transactional-update -n -c run zypper --non-interactive --gpg-auto-import-keys refresh
-        ExecStart=/usr/sbin/transactional-update -n -c run zypper --non-interactive --gpg-auto-import-keys install python38-rpm open-iscsi python3-openshift inotify-tools terminfo
+        ExecStart=/usr/sbin/transactional-update -n -c run zypper --non-interactive --gpg-auto-import-keys refresh && /usr/sbin/transactional-update -n -c run zypper --non-interactive --gpg-auto-import-keys install python38-rpm open-iscsi python3-openshift inotify-tools terminfo
         ExecStartPost=/usr/bin/touch /var/lib/issuegen-base-ignition-pkgs
         [Install]
         WantedBy=multi-user.target
