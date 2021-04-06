@@ -28,29 +28,12 @@ storage:
     - path: /etc/sudoers.d/localanthony
       contents:
         inline: "localanthony ALL=(ALL) NOPASSWD: ALL"
-    - path: /etc/zypp/repos.d/home_anthr76_kubernetes.repo
+    - path: /run/combustion/mount/script/raw
       mode: 0493
       contents:
         inline: |
-          [home_anthr76_kubernetes]
-          name=Developer & System Operations  (openSUSE_Tumbleweed)
-          enabled=1
-          autorefresh=0
-          baseurl=https://download.opensuse.org/repositories/home:/anthr76:/kubernetes/openSUSE_Tumbleweed/
-          gpgcheck=1
-          gpgkey=https://download.opensuse.org/repositories/home:/anthr76:/kubernetes/openSUSE_Tumbleweed/repodata/repomd.xml.key
-systemd:
-  units:
-    - name: base-packages.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Installed required packages from base ignition.
-        After=network-online.target
-        ConditionPathExists=!/var/lib/issuegen-base-ignition-pkgs
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/sbin/transactional-update -n -c run zypper --non-interactive --gpg-auto-import-keys refresh && /usr/sbin/transactional-update -n -c run zypper --non-interactive --gpg-auto-import-keys install python38-rpm open-iscsi python3-openshift inotify-tools terminfo
-        ExecStartPost=/usr/bin/touch /var/lib/issuegen-base-ignition-pkgs
-        [Install]
-        WantedBy=multi-user.target
+          #!/bin/bash
+          exec > >(exec tee -a /dev/tty0) 2>&1
+          zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:anthr76:kubernetes/openSUSE_Tumbleweed/home:anthr76:kubernetes.repo
+          zypper --non-interactive --gpg-auto-import-keys refresh
+          zypper --non-interactive --gpg-auto-import-keys install python38-rpm open-iscsi python3-openshift inotify-tools terminfo
