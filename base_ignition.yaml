@@ -26,14 +26,42 @@ storage:
       contents:
         inline: REBOOT_METHOD=kured
     - path: /etc/sudoers.d/localanthony
+      overwrite: true
       contents:
         inline: "localanthony ALL=(ALL) NOPASSWD: ALL"
-    - path: /run/combustion/mount/script/raw
+    - path: /var/lib/firstboot.sh
+      overwrite: true
       mode: 0493
       contents:
         inline: |
-          #!/bin/bash
-          exec > >(exec tee -a /dev/tty0) 2>&1
-          zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:anthr76:kubernetes/openSUSE_Tumbleweed/home:anthr76:kubernetes.repo
-          zypper --non-interactive --gpg-auto-import-keys refresh
-          zypper --non-interactive --gpg-auto-import-keys install python38-rpm open-iscsi python3-openshift inotify-tools terminfo
+          transactional-update --continue run bash -c '
+            #!/usr/bin/env bash
+            zypper --non-interactive addrepo https://download.opensuse.org/repositories/home:anthr76:kubernetes/openSUSE_Tumbleweed/home:anthr76:kubernetes.repo
+            zypper --non-interactive --gpg-auto-import-keys refresh
+            zypper --non-interactive --gpg-auto-import-keys dup
+            zypper --non-interactive --gpg-auto-import-keys install open-iscsi inotify-tools terminfo
+            systemctl enable iscsid
+          '
+systemd:
+  units:
+    - name: issuegen-first-boot.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Inital first boot packages
+        Before=issue-generator.service
+        Conflicts=shutdown.target
+        DefaultDependencies=no
+        After=network-online.target wicked.service wickedd.service
+        ConditionPathIsReadWrite=/etc
+        ConditionPathExists=!/var/lib/issuegen-first-boot
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/bash /var/lib/firstboot.sh
+        ExecStartPost=/usr/bin/touch /var/lib/issuegen-first-boot
+        ExecStartPost=/usr/bin/systemctl start reboot.target
+        RemainAfterExit=yes
+
+        [Install]
+        WantedBy=issue-generator.service
