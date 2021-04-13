@@ -51,19 +51,29 @@ resource "libvirt_network" "kubic_network" {
 
 data "ct_config" "base_ignition" {
   count = var.count_vms
-  content      = templatefile(
+  content = templatefile(
     "base_ignition.yaml",
-    { count = count.index
+    {
+      count                = count.index
       localanthony_ssh_key = var.localanthony_ssh_key
-     }
+    }
   )
+  snippets = [
+    templatefile(
+      "master_ignition.yaml",
+      {
+        control_plane_ip   = var.control_plane_ip
+        certificate_key = var.kubeadm_certificate_key
+        token = var.kubeadm_token
+      }
+    )]
   strict       = true
   pretty_print = false
 }
 
 resource "libvirt_ignition" "ignition" {
-  count = var.count_vms
-  name = "ignition-${count.index}"
+  count   = var.count_vms
+  name    = "ignition-${count.index}"
   content = data.ct_config.base_ignition[count.index].rendered
 }
 

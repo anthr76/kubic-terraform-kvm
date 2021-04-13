@@ -15,6 +15,21 @@ variable "network_cidr" {
   default     = "10.16.0.0/24"
 }
 
+variable "control_plane_ip" {
+  description = "IP Address of Control plane endpoint"
+  default     = "10.16.0.254"
+}
+
+variable "kubeadm_token" {
+  type        = string
+  description = "The token use for bootstrapping the kubernetes cluster.\nGenerate with: \n$ kubeadm token generate"
+}
+
+variable "kubeadm_certificate_key" {
+  type        = string
+  description = "The key used to encrypt the control-plane certificates.\nGenerate with: \n$ kubeadm alpha certs certificate-key\n"
+}
+
 variable "network_mode" {
   description = "Network mode"
   default     = "nat"
