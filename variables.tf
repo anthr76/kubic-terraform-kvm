@@ -23,11 +23,13 @@ variable "control_plane_ip" {
 variable "kubeadm_token" {
   type        = string
   description = "The token use for bootstrapping the kubernetes cluster.\nGenerate with: \n$ kubeadm token generate"
+  sensitive   = true
 }
 
 variable "kubeadm_certificate_key" {
   type        = string
   description = "The key used to encrypt the control-plane certificates.\nGenerate with: \n$ kubeadm alpha certs certificate-key\n"
+  sensitive   = true
 }
 
 variable "network_mode" {
@@ -35,8 +37,13 @@ variable "network_mode" {
   default     = "nat"
 }
 
-variable "count_vms" {
-  description = "number of virtual-machine of same type that will be created"
+variable "count_masters" {
+  description = "number of masters virtual-machine of same type that will be created"
+  default     = 3
+}
+
+variable "count_workers" {
+  description = "number of workers virtual-machine of same type that will be created"
   default     = 3
 }
 

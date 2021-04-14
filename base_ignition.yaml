@@ -19,7 +19,7 @@ storage:
       mode: 0644
       overwrite: true
       contents:
-        inline: test-${count}
+        inline: kubic-${count}
     - path: /etc/transactional-update.conf
       mode: 0644
       overwrite: true
@@ -49,7 +49,7 @@ systemd:
       contents: |
         [Unit]
         Description=Inital first boot packages
-        Before=issue-generator.service
+        Before=issue-generator.service kubelet.service
         Conflicts=shutdown.target
         DefaultDependencies=no
         After=network-online.target wicked.service wickedd.service
