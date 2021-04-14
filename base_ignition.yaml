@@ -41,6 +41,7 @@ storage:
             zypper --non-interactive --gpg-auto-import-keys dup
             zypper --non-interactive --gpg-auto-import-keys install open-iscsi inotify-tools terminfo
             systemctl enable iscsid
+            /usr/bin/kubeadm config images pull
           '
 systemd:
   units:

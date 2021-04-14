@@ -89,11 +89,10 @@ systemd:
 
         [Service]
         EnvironmentFile=/etc/sysconfig/kubelet
-        Environment="KUBELET_EXTRA_ARGS="--container-runtime=remote --container-runtime-endpoint=unix:///var/run/crio/crio.sock --runtime-request-timeout=15m --cgroup-driver=systemd -v=2"
         Type=oneshot
         ExecStart=/usr/bin/kubeadm join --config /var/lib/kubelet/init-config.yaml
         ExecStartPost=/usr/bin/touch /var/lib/issuegen-cluster-creation
-        ExecStartPost=/usr/bin/cp /etc/kubernetes/kube-vip.yaml /etc/kubernetes/manifests/kube-vip.yaml
+        ExecStartPost=/usr/bin/mv /etc/kubernetes/kube-vip.yaml /etc/kubernetes/manifests/kube-vip.yaml
         Restart=on-failure
         RestartSec=120s
 

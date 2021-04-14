@@ -89,7 +89,6 @@ systemd:
 
         [Service]
         EnvironmentFile=/etc/sysconfig/kubelet
-        Environment="KUBELET_EXTRA_ARGS="--container-runtime=remote --container-runtime-endpoint=unix:///var/run/crio/crio.sock --runtime-request-timeout=15m --cgroup-driver=systemd -v=2"
         Type=oneshot
         ExecStart=/usr/bin/kubeadm init --config /var/lib/kubelet/init-config.yaml --upload-certs
         ExecStartPost=/usr/bin/sudo -u localanthony mkdir -p /home/localanthony/.kube
