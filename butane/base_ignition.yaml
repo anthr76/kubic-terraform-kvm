@@ -15,11 +15,6 @@ storage:
       mount_options:
         - subvol=/@/home
   files:
-    - path: /etc/hostname
-      mode: 0644
-      overwrite: true
-      contents:
-        inline: kubic-${count}
     - path: /etc/transactional-update.conf
       mode: 0644
       overwrite: true
@@ -61,8 +56,30 @@ systemd:
         Type=oneshot
         ExecStart=/usr/bin/bash /var/lib/firstboot.sh
         ExecStartPost=/usr/bin/touch /var/lib/issuegen-first-boot
-        ExecStartPost=/usr/bin/systemctl start reboot.target
+        ExecStartPost=/sbin/kexec -l /boot/vmlinuz --initrd=/boot/initrd --reuse-cmdline
+        ExecStartPost=/usr/bin/sync
+        ExecStartPost=systemctl kexec
         RemainAfterExit=yes
 
         [Install]
         WantedBy=issue-generator.service
+    - name: cluster-creation.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=kubeadm automation provided by drop-in
+        ConditionPathExists=!/var/lib/issuegen-cluster-creation
+        After=issuegen-first-boot.service crio.service kubelet.service
+        Requires=issuegen-first-boot.service crio.service
+        StartLimitInterval=1200s
+        StartLimitBurst=5
+
+        [Service]
+        EnvironmentFile=/etc/sysconfig/kubelet
+        Type=oneshot
+        ExecStart=
+        Restart=on-failure
+        RestartSec=120s
+
+        [Install]
+        WantedBy=multi-user.target
