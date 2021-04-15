@@ -30,11 +30,10 @@ You're going to need at least:
 Run 
 
 ```bash
-./download-image.py
+./contrib/download-image.py
 terraform init
 terraform plan
 terraform apply
-./mk-ssh-config.sh
 ```
     
 to start the VMs.
@@ -50,30 +49,13 @@ cp terraform.tfvars.sample terraform.tfvars
 Please refer to the `variables.tf` file for the full variables list with
 descriptions.
 
-*note: the default password for the root user is `linux`.*
 
 # Setting up Kubernetes cluster
 
-Initialize the K8s cluster by running `kubeadm` on the the first node:
+![](https://i.imgur.com/9ysUpJG.png)
 
-```bash
-cat <<'EOF' | ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[0][]') 'bash -s'
-kubeadm init --cri-socket=/var/run/crio/crio.sock --pod-network-cidr=10.244.0.0/16
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
-kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-EOF
-```
-    
-And run the `kubeadm join` on the others. We just have to add `--cri-socket=/var/run/crio/crio.sock`:
+Kubeadm is provisoned with an opionated confiuration provided by ignition and butane. Kubeproxy is disabled and cilium CNI is deployed.
 
-```bash
-join_command=$(ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[0][]') "kubeadm token create --print-join-command")
-join_command="kubeadm join --cri-socket=/var/run/crio/crio.sock $(echo $join_command | python -c 'import sys; print(" ".join(sys.stdin.read().split()[2:]))')"
-ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[1][]') "$join_command"
-ssh -F ssh_config $(terraform output -json | jq -r '.ips.value[2][]') "$join_command"
-```
 
 # Howto
 
