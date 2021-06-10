@@ -4,7 +4,7 @@ This is an opionated fork of terraform-kubic-kvm. The goal is to provide e2e clu
 
 This serves as a testing ground before making it over to my infra repo. Your milleage will vary but perhaps tidbits you find in here you will find useful.
 
-`secret.tfvars` holds secret varibles. This would be used in git-crypt on [infra](github.com/anthr76/infra).
+`secret.tfvars` holds secret varibles. This would be used in git-crypt on [infra](github.com/anthr76/infra). Sops or vault is also a great use case.
 
 Some gists you might find interesting if you're on a similar path:
 
